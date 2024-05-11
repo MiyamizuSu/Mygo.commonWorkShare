@@ -8,6 +8,10 @@ public class userFile  implements file{
     private int FileLength;
     public Status nowStatus;
     public int usedNumber;
+    public userFile(){
+
+    }
+
     public userFile(String fileName,int isAllowedRU,int isAllowedR,int isAllowedW) {
         FileName = fileName;
         FileLength = 0;
@@ -42,7 +46,7 @@ public class userFile  implements file{
     public void setFileLength(int fileLength) {
         FileLength = fileLength;
     }
-    enum Status {
+    public enum Status {
         relaxing,running,read,write
     }
 

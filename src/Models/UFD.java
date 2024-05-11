@@ -19,11 +19,15 @@ public class UFD implements file{
         this.userFiles = userFiles;
     }
 
-    public String getUfdName() {
+    public String getFileName() {
         return ufdName;
     }
 
     public void setUfdName(String ufdName) {
         this.ufdName = ufdName;
+    }
+    @Override
+    public String toString() {
+        return "文件夹："+ ufdName;
     }
 }

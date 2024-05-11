@@ -23,6 +23,7 @@ public class CPU {
                     deletedFile=ele;
                 }
                 else {
+                    userFiles.getUserFiles().remove(ele);
                 }
             }
         }
@@ -38,7 +39,7 @@ public class CPU {
         return "删除成功";
     }
     public file openFile(UFD ufd,String fileName){
-        userFile openedFile=null;
+        userFile openedFile=new userFile();
         ArrayList<file> userFiles = ufd.getUserFiles();
         Iterator<file> itr = userFiles.iterator();
         while(itr.hasNext()){
@@ -51,18 +52,15 @@ public class CPU {
             }
             else {
                 UFD ele=(UFD)eleE;
-                if (fileName.equals(ele.getUfdName())){
+                if (fileName.equals(ele.getFileName())){
                     return ele;
                 }
             }
         }
-        if(openedFile==null){
-            return null;
-        }
         return openedFile;
     }
     public file closeFile(UFD ufd,String fileName){
-        userFile closedFile=null;
+        userFile closedFile=new userFile();
         ArrayList<file> userFiles = ufd.getUserFiles();
         Iterator<file> itr = userFiles.iterator();
         while(itr.hasNext()){
@@ -73,29 +71,25 @@ public class CPU {
                     closedFile=ele;
                 }
             }
+            else {
+                if(eleE.getFileName().equals(fileName)){
+                    return eleE;
+                }
+            }
         }
-        if(closedFile==null){
-            return "没有找到该文件";
-        }
-        if(closedFile.nowStatus==userFile.Status.write){
-            return "该文件正在写入数据，无法被关闭";
-        }
-        else if(closedFile.nowStatus==userFile.Status.relaxing){
-            return "该文件还未被打开";
-        }
-        else {
-            closedFile.nowStatus = userFile.Status.relaxing;
-            return "该文件已经被关闭\n" + closedFile.toString();
-        }
+        return closedFile;
     }
     public String readFile(UFD ufd,String fileName){
-        userFile readFile=null;
-        ArrayList<userFile> userFiles = ufd.getUserFiles();
-        Iterator<userFile> itr = userFiles.iterator();
+        userFile readFile=new userFile();
+        ArrayList<file> userFiles = ufd.getUserFiles();
+        Iterator<file> itr = userFiles.iterator();
         while(itr.hasNext()){
-            userFile ele=itr.next();
-            if(fileName.equals(ele.getFileName())){
-                readFile=ele;
+            file eleE=itr.next();
+            if (eleE.getClass().equals(readFile.getClass())){
+                userFile ele = (userFile) eleE;
+                if(fileName.equals(ele.getFileName())){
+                    readFile=ele;
+                }
             }
         }
         if(readFile==null){
@@ -112,13 +106,16 @@ public class CPU {
         }
     }
     public String writeFile(UFD ufd,String fileName){
-        userFile writeFile=null;
-        ArrayList<userFile> userFiles = ufd.getUserFiles();
-        Iterator<userFile> itr = userFiles.iterator();
+        userFile writeFile=new userFile();
+        ArrayList<file> userFiles = ufd.getUserFiles();
+        Iterator<file> itr = userFiles.iterator();
         while(itr.hasNext()){
-            userFile ele=itr.next();
-            if(fileName.equals(ele.getFileName())){
-                writeFile=ele;
+            file eleE=itr.next();
+            if (eleE.getClass().equals(writeFile.getClass())){
+                userFile ele = (userFile) eleE;
+                if(fileName.equals(ele.getFileName())){
+                    writeFile=ele;
+                }
             }
         }
         if(writeFile==null){

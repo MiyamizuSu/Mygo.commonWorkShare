@@ -2,6 +2,7 @@ package main;
 
 import Models.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Scanner;
@@ -13,6 +14,7 @@ public class enter {
             CPU amd=new CPU();
             UFD ufd = new UFD("root");
             int choice;
+            UFD backUfd=null;
             Scanner scanner = new Scanner(System.in);
             while (true) {
                 boolean isPassed = false;
@@ -32,6 +34,7 @@ public class enter {
                 }
             }
             do {
+                System.out.println("现在的目录名为"+ufd.getFileName());
                 System.out.println("请选择操作：");
                 System.out.println("1. 列出文件目录");
                 System.out.println("2. 创建文件");
@@ -53,22 +56,31 @@ public class enter {
                         Iterator<file> iterator = ufd.getUserFiles().iterator();
                         while (iterator.hasNext()) {
                             System.out.println(iterator.next().toString() + "\n");
-                            Thread.sleep(2000);
                         }
+                        Thread.sleep(2000);
                         break;
                     case 2:
                         System.out.println("您选择了创建文件。");
-                        System.out.println("请输入文件名:");
-                        String newFileName = scanner.nextLine();
-                        System.out.println("请输入文件的运行读写权限");
-                        System.out.println("运行权限：");
-                        int newFileRU = Integer.valueOf(scanner.nextLine());
-                        System.out.println("读权限：");
-                        int newFileR = Integer.valueOf(scanner.nextLine());
-                        System.out.println("写权限：");
-                        int newFileW = Integer.valueOf(scanner.nextLine());
-                        amd.createFile(ufd,newFileName,newFileRU,newFileR,newFileW);
-                        System.out.println("添加完成");
+                        System.out.println("您要创建的是\n1.目录,2.文件");
+                        if(scanner.nextLine().equals("1")){
+                            System.out.println("请输入文件夹名:");
+                            UFD newUfd= new UFD(scanner.nextLine());
+                            ufd.getUserFiles().add(newUfd);
+                            System.out.println("添加完成");
+                        }
+                        else {
+                            System.out.println("请输入文件名:");
+                            String newFileName = scanner.nextLine();
+                            System.out.println("请输入文件的运行读写权限");
+                            System.out.println("运行权限：");
+                            int newFileRU = Integer.valueOf(scanner.nextLine());
+                            System.out.println("读权限：");
+                            int newFileR = Integer.valueOf(scanner.nextLine());
+                            System.out.println("写权限：");
+                            int newFileW = Integer.valueOf(scanner.nextLine());
+                            amd.createFile(ufd, newFileName, newFileRU, newFileR, newFileW);
+                            System.out.println("添加完成");
+                        }
                         Thread.sleep(2000);
                         // 添加创建文件逻辑
                         break;
@@ -78,6 +90,7 @@ public class enter {
                         String deletedFileName = scanner.nextLine();
                         System.out.println(amd.deleteFile(ufd,deletedFileName));
                         Thread.sleep(2000);
+
                         // 添加删除文件逻辑
                         break;
                     case 4:
@@ -85,15 +98,58 @@ public class enter {
                         // 添加打开文件逻辑
                         System.out.println("请输入文件名:");
                         String openedFileName = scanner.nextLine();
-                        System.out.println(amd.openFile(ufd, openedFileName));
+                        file openedFile = amd.openFile(ufd,openedFileName);
+                        if (openedFile == null) {
+                            System.out.println("没有找到该文件");
+                        }
+                        else {
+                            if (openedFile.getClass().equals(ufd.getClass())){
+                                backUfd=ufd;
+                                ufd=(UFD)openedFile;
+                            }
+                            else {
+                                System.out.println("已打开文件:"+openedFile.getFileName());
+                            }
+                        }
                         Thread.sleep(2000);
                         break;
                     case 5:
                         System.out.println("您选择了关闭文件。");
                         // 添加关闭文件逻辑
+                        boolean isPackage=true;
                         String closedFileName = scanner.nextLine();
-                        System.out.println(amd.closeFile(ufd, closedFileName));
-                        Thread.sleep(2000);
+                        ArrayList<file> files=backUfd.getUserFiles();
+                        Iterator<file> iterator1=files.iterator();
+                        if (isPackage) {
+                            while (iterator1.hasNext()) {
+                                file ele = iterator1.next();
+                                if (ele.getFileName().equals(closedFileName)) {
+                                    ufd = backUfd;
+                                }
+                            }
+                            isPackage=false;
+                        }
+                        if(!isPackage){
+                            file closedFileE = amd.closeFile(ufd, closedFileName);
+                            if (closedFileE == null) {
+                                System.out.println("未找到该文件");
+                            } else {
+                                if (closedFileE.getClass().equals(ufd.getClass())) {
+                                    ufd = backUfd;
+                                } else {
+                                    userFile closedFile = (userFile) amd.closeFile(ufd, closedFileName);
+                                    if (closedFile.nowStatus == userFile.Status.write) {
+                                        System.out.println("该文件正在写入数据，无法被关闭");
+                                    } else if (closedFile.nowStatus == userFile.Status.relaxing) {
+                                        System.out.println("该文件还未被打开");
+                                    } else {
+                                        closedFile.nowStatus = userFile.Status.relaxing;
+                                        System.out.println("该文件已经被关闭\n" + closedFile.toString());
+                                    }
+                                    Thread.sleep(2000);
+                                }
+                            }
+                        }
                         break;
                     case 6:
                         System.out.println("您选择了读取文件。");
